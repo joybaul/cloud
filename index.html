@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেঘ থেকে বৃষ্টি</title>
+    <style>
+        /* পুরো স্ক্রিন জুড়ে মেঘলা আকাশের ব্যাকগ্রাউন্ড */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #111e25, #223e4a); /* গাঢ় মেঘলা আকাশ */
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* মেঘের কন্টেইনার */
+        .cloud-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%; 
+            pointer-events: none;
+            opacity: 0.4; 
+        }
+
+        /* মেঘের শেপ */
+        .cloud {
+            position: absolute;
+            background: #576574; 
+            width: 180px;
+            height: 60px;
+            border-radius: 50px;
+            filter: blur(8px); 
+            animation: moveClouds linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: #576574;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            top: -45px;
+            left: 25px;
+        }
+
+        .cloud::after {
+            width: 110px;
+            height: 110px;
+            top: -65px;
+            left: auto;
+            right: 25px;
+        }
+
+        /* আলাদা আলাদা মেঘের পজিশন এবং গতি */
+        .cloud1 { top: 10%; animation-duration: 35s; transform: scale(1.2); }
+        .cloud2 { top: 25%; animation-duration: 25s; transform: scale(0.8); }
+        .cloud3 { top: 5%; animation-duration: 45s; transform: scale(1.5); }
+        .cloud4 { top: 20%; animation-duration: 30s; transform: scale(1); }
+
+        @keyframes moveClouds {
+            0% { left: -250px; }
+            100% { left: 100%; }
+        }
+
+        /* নির্দেশনা টেক্সট */
+        .instruction {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #bdc3c7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 22px;
+            text-align: center;
+            pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            width: 90%;
+        }
+
+        /* বৃষ্টির ফোঁটার স্টাইল */
+        .drop {
+            position: absolute;
+            background: linear-gradient(transparent, #74b9ff);
+            width: 1.5px;
+            height: 60px;
+            opacity: 0.6;
+            animation: fall linear forwards;
+            pointer-events: none;
+        }
+
+        /* বৃষ্টি নিচে পড়ার অ্যানিমেশন */
+        @keyframes fall {
+            to {
+                transform: translateY(105vh);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cloud-container">
+        <div class="cloud cloud1" style="animation-delay: 0s;"></div>
+        <div class="cloud cloud2" style="animation-delay: -5s;"></div>
+        <div class="cloud cloud3" style="animation-delay: -15s;"></div>
+        <div class="cloud cloud4" style="animation-delay: -20s;"></div>
+    </div>
+
+    <div class="instruction">স্ক্রিনে হাত দিলেই বৃষ্টি! বিশ্বাস না হলে নিজেই ছুঁয়ে দেখুন। ✨(ক্লিক করুন)</div>
+
+    <script>
+        // স্ক্রিনের যেকোনো জায়গায় ক্লিক বা টাচ করলে এই ফাংশনটি চলবে
+        function startSkyRain() {
+            // নির্দেশনা লেখাটি প্রথম ক্লিকেই গায়েব হয়ে যাবে
+            const ins = document.querySelector('.instruction');
+            if(ins) ins.remove();
+
+            // এক ক্লিকে পুরো আকাশ জুড়ে ৩০টি বৃষ্টির ফোঁটা তৈরি হবে
+            let dropCount = 30; 
+            for (let i = 0; i < dropCount; i++) {
+                createRaindrop();
+            }
+        }
+
+        document.addEventListener('click', startSkyRain);
+        document.addEventListener('touchstart', startSkyRain);
+
+        // মেঘ (ওপরের অংশ) থেকে বৃষ্টি তৈরি করার ফাংশন
+        function createRaindrop() {
+            const drop = document.createElement('div');
+            drop.classList.add('drop');
+
+            // বৃষ্টি স্ক্রিনের বাম থেকে ডানের যেকোনো (Random) জায়গায় তৈরি হবে
+            let randomX = Math.random() * window.innerWidth; 
+            // বৃষ্টি স্ক্রিনের একদম ওপর থেকে (-২০ পিক্সেল) শুরু হবে, অর্থাৎ মেঘের আড়াল থেকে
+            let randomY = Math.random() * -50; 
+
+            drop.style.left = randomX + 'px';
+            drop.style.top = randomY + 'px';
+
+            // প্রতিটি ফোঁটার গতি এবং দৈর্ঘ্য একটু আলাদা হবে
+            let duration = Math.random() * 0.5 + 0.4; // ০.৪ থেকে ০.৯ সেকেন্ড
+            let height = Math.random() * 20 + 45; // ৪৫ থেকে ৬৫ পিক্সেল
+
+            drop.style.animationDuration = duration + 's';
+            drop.style.height = height + 'px';
+
+            document.body.appendChild(drop);
+
+            // নিচে পড়ে যাওয়ার পর স্ক্রিন থেকে মুছে যাবে
+            setTimeout(() => {
+                drop.remove();
+            }, duration * 1000);
+        }
+    </script>
+
+</body>
+</html>
+
+
